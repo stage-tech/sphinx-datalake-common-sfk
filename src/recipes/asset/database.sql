@@ -30,16 +30,19 @@ create or replace procedure upsert_asset_sp(ASSET_JSON VARIANT)
   EXECUTE AS CALLER
   as
   $$
-    var tags = 'OBJECT_CONSTRUCT_KEEP_NULL(' + ASSET_JSON.tags.map(t => {
-        var idx = t.indexOf(':');
-        if (idx >= 0) {
-            var key = t.substr(0, idx);
-            var value = t.substr(idx+1);
-            return `'${key}','${value}'`;
-        } else {
-            return `'${t}',NULL`;
-        }
-    }).join(",") + ')';
+    var tags = 'NULL';
+    if(ASSET_JSON.tags){
+      tags = 'OBJECT_CONSTRUCT_KEEP_NULL(' + ASSET_JSON.tags.map(t => {
+          var idx = t.indexOf(':');
+          if (idx >= 0) {
+              var key = t.substr(0, idx);
+              var value = t.substr(idx+1);
+              return `'${key}','${value}'`;
+          } else {
+              return `'${t}',NULL`;
+          }
+      }).join(",") + ')';
+    }
 
     var deleteAsset = snowflake.execute({sqlText: `
 DELETE FROM %ENV%_DOOR.PUBLIC.ASSET WHERE ID = '${ASSET_JSON.assetId}'`});

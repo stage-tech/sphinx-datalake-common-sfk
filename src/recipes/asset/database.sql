@@ -30,7 +30,7 @@ create or replace procedure upsert_asset_sp(ASSET_JSON VARIANT)
   EXECUTE AS CALLER
   as
   $$
-    var tags = null;
+    var tags = 'NULL';
     if(ASSET_JSON.tags){
       tags = 'OBJECT_CONSTRUCT_KEEP_NULL(' + ASSET_JSON.tags.map(t => {
           var idx = t.indexOf(':');
